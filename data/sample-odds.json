@@ -1,0 +1,13 @@
+{
+  "eventId": "2026-the-players",
+  "tournament": "The Players Championship",
+  "snapshotAt": "2026-03-10T14:00:00Z",
+  "quotes": [
+    { "bookmaker": "Book A", "market": "tournament_winner", "player": "Scottie Scheffler", "americanOdds": 350 },
+    { "bookmaker": "Book A", "market": "tournament_winner", "player": "Rory McIlroy", "americanOdds": 800 },
+    { "bookmaker": "Book A", "market": "tournament_winner", "player": "Collin Morikawa", "americanOdds": 1200 },
+    { "bookmaker": "Book B", "market": "tournament_winner", "player": "Scottie Scheffler", "americanOdds": 400 },
+    { "bookmaker": "Book B", "market": "tournament_winner", "player": "Rory McIlroy", "americanOdds": 750 },
+    { "bookmaker": "Book B", "market": "tournament_winner", "player": "Collin Morikawa", "americanOdds": 1400 }
+  ]
+}

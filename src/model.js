@@ -40,17 +40,37 @@ export function priceTournament(snapshot) {
   return new Map(averaged.map((row) => [row.player, row.probability / normalization]));
 }
 
-export function recommendBets(snapshot, { bankroll = 1000, minEdge = 0.02, kellyFraction = 0.25 } = {}) {
+export function recommendBets(snapshot, {
+  bankroll = 1000,
+  minEdge = 0.02,
+  kellyFraction = 0.25,
+  minBookmakers = 3,
+  maxBestPriceMultiple = 3,
+} = {}) {
   const fairProbabilities = priceTournament(snapshot);
   const bestQuotes = new Map();
+  const quotesByPlayer = new Map();
   for (const q of snapshot.quotes.filter((q) => q.market === "tournament_winner")) {
     const current = bestQuotes.get(q.player);
     if (!current || q.americanOdds > current.americanOdds) bestQuotes.set(q.player, q);
+    if (!quotesByPlayer.has(q.player)) quotesByPlayer.set(q.player, []);
+    quotesByPlayer.get(q.player).push(q);
   }
   return [...bestQuotes.values()]
     .map((quote) => {
       const fairProbability = fairProbabilities.get(quote.player);
       const decimalOdds = americanToDecimal(quote.americanOdds);
+      const playerQuotes = quotesByPlayer.get(quote.player);
+      const decimals = playerQuotes.map((q) => americanToDecimal(q.americanOdds)).sort((a, b) => a - b);
+      const middle = Math.floor(decimals.length / 2);
+      const medianDecimalOdds = decimals.length % 2 === 0
+        ? (decimals[middle - 1] + decimals[middle]) / 2
+        : decimals[middle];
+      const priceOutlier = decimalOdds > medianDecimalOdds * maxBestPriceMultiple;
+      const qualityFlags = [
+        ...(playerQuotes.length < minBookmakers ? ["thin_market"] : []),
+        ...(priceOutlier ? ["outlier_price"] : []),
+      ];
       const b = decimalOdds - 1;
       const expectedValuePerDollar = fairProbability * b - (1 - fairProbability);
       const fullKelly = Math.max(0, expectedValuePerDollar / b);
@@ -67,7 +87,10 @@ export function recommendBets(snapshot, { bankroll = 1000, minEdge = 0.02, kelly
         edge: fairProbability - impliedProbability(quote.americanOdds),
         expectedValuePerDollar,
         recommendedStake: stake,
-        eligible: expectedValuePerDollar >= minEdge,
+        booksQuoted: playerQuotes.length,
+        medianDecimalOdds,
+        qualityFlags,
+        eligible: expectedValuePerDollar >= minEdge && qualityFlags.length === 0,
       };
     })
     .sort((a, b) => b.expectedValuePerDollar - a.expectedValuePerDollar);

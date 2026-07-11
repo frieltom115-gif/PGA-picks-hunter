@@ -1,0 +1,4 @@
+.env
+data/latest-run.json
+data/odds-snapshots/*.json
+node_modules/

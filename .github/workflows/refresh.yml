@@ -1,0 +1,15 @@
+name: Refresh PGA odds model
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */4 * * *"
+jobs:
+  test-and-refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm test
+      # Replace this fixture command with the licensed provider adapter. Store its key in GitHub Secrets.
+      - run: npm run refresh:fixture

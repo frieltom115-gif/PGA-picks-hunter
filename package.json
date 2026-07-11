@@ -1,0 +1,12 @@
+{
+  "name": "pga-golf-ev-model",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Auditable PGA tournament-winner EV model with odds snapshots and performance tracking.",
+  "scripts": {
+    "test": "node --test",
+    "refresh:fixture": "node src/refresh.mjs --input data/sample-odds.json --output data/latest-run.json"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -15,10 +15,22 @@ test("de-vigged consensus sums to one", () => {
 });
 
 test("recommendations select the best available price and apply stake cap", () => {
-  const bets = recommendBets(snapshot, { bankroll: 1000, minEdge: -1, kellyFraction: 1 });
+  const bets = recommendBets(snapshot, { bankroll: 1000, minEdge: -1, kellyFraction: 1, minBookmakers: 2 });
   const morikawa = bets.find((x) => x.player === "Collin Morikawa");
   assert.equal(morikawa.bookmaker, "Book B");
   assert.ok(morikawa.recommendedStake <= 50);
+  assert.deepEqual(morikawa.qualityFlags, []);
+});
+
+test("outlier odds are flagged and not eligible", () => {
+  const outlier = structuredClone(snapshot);
+  outlier.quotes.push({ bookmaker: "Book C", market: "tournament_winner", player: "Collin Morikawa", americanOdds: 1100 });
+  outlier.quotes = outlier.quotes.map((quote) => quote.player === "Collin Morikawa" && quote.bookmaker === "Book B"
+    ? { ...quote, americanOdds: 100000 }
+    : quote);
+  const morikawa = recommendBets(outlier, { minEdge: -1 }).find((x) => x.player === "Collin Morikawa");
+  assert.ok(morikawa.qualityFlags.includes("outlier_price"));
+  assert.equal(morikawa.eligible, false);
 });
 
 test("settled bet performance returns ROI", () => {

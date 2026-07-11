@@ -11,5 +11,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm test
-      # Replace this fixture command with the licensed provider adapter. Store its key in GitHub Secrets.
-      - run: npm run refresh:fixture
+      - run: npm run refresh:open
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-championship-refresh
+          path: data/latest-run.json

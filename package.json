@@ -6,7 +6,9 @@
   "description": "Auditable PGA tournament-winner EV model with odds snapshots and performance tracking.",
   "scripts": {
     "test": "node --test",
-    "refresh:fixture": "node src/refresh.mjs --input data/sample-odds.json --output data/latest-run.json"
+    "refresh:fixture": "node src/refresh.mjs --input data/sample-odds.json --output data/latest-run.json",
+    "fetch:open": "node src/fetch-open.mjs --output data/provider-odds.json",
+    "refresh:open": "npm run fetch:open && node src/refresh.mjs --input data/provider-odds.json --output data/latest-run.json"
   },
   "engines": { "node": ">=20" }
 }

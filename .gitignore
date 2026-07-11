@@ -1,4 +1,5 @@
 .env
+data/provider-odds.json
 data/latest-run.json
 data/odds-snapshots/*.json
 node_modules/

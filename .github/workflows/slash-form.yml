@@ -1,0 +1,29 @@
+name: Refresh PGA recent form
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: PGA Tour season year
+        required: true
+        default: "2026"
+      events:
+        description: Number of completed events to evaluate
+        required: true
+        default: "8"
+jobs:
+  refresh-form:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm test
+      - run: node src/fetch-slash-form.mjs --year "${{ inputs.year }}" --events "${{ inputs.events }}" --output data/slash-results.json
+        env:
+          SLASH_GOLF_API_KEY: ${{ secrets.SLASH_GOLF_API_KEY }}
+      - run: node src/refresh-form.mjs --input data/slash-results.json --output data/form-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pga-recent-form
+          path: data/form-report.json
